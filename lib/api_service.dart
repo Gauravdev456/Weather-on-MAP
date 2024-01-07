@@ -7,7 +7,7 @@ import 'package:weather_on_map_app/models/weather_model.dart';
 class ApiService {
   static Future<List<WeatherData>> fetchWeatherData(double latitude, double longitude) async {
     final url = Uri.parse(
-        'https://api.openweathermap.org/data/2.5/forecast?lat=$latitude&lon=$longitude&appid=25162a4e9225cdd9ae3899132eec690e&units=metric');
+        'https://api.openweathermap.org/data/2.5/forecast?lat=$latitude&lon=$longitude&appid=WEATHER_API_KEY&units=metric');
 
     try {
       final response = await http.get(url);
@@ -34,7 +34,7 @@ class ApiService {
   }
    static Future<PositionData> fetchLocation(double latitude, double longitude) async {
     final url = Uri.parse(
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=AIzaSyDkNg3VtikECzVxZCS4828nKzqrwpeZYgY');
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=$latitude,$longitude&key=MAP_API_KEY');
   
     try {
       final response = await http.get(url);
