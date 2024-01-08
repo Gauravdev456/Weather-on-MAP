@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart' as geolocator;
+import 'package:geolocator/geolocator.dart' ;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart' as location;
-import 'package:location/location.dart';
+
 import 'package:weather_on_map_app/models/weather_model.dart';
 import 'package:weather_on_map_app/api_service.dart';
 import 'package:weather_on_map_app/models/location_data.dart';
@@ -22,60 +23,87 @@ class _LocationScreenState extends State<LocationScreen> {
  
   late GoogleMapController _mapController;
   List<WeatherData> _initweatherdata = [];
-  double latitude = 12.971599; // Provide a default value or set it to nullable
-  double longitude = 77.594566; // Provide a default value or set it to nullable
+  double latitude = 12.971599; 
+  double longitude = 77.594566; 
   late PositionData _positionData =
       PositionData(latitude: 0, longitude: 0, cityName: '');
   String address = '';
+  late Timer _gpsCheckTimer;
   @override
   void initState() {
-
+    
+    _checkGpsAndPermission();
+    _startGpsCheckTimer();
     super.initState();
-    _getLocation();
+  }
+
+  void _startGpsCheckTimer() {
+
+    _gpsCheckTimer = Timer.periodic(Duration(seconds: 100), (timer) {
+      _checkGpsAndPermission();
+    });
+  }
+
+  @override
+  void dispose() {
+ 
+    _gpsCheckTimer.cancel();
+    super.dispose();
+  }
+
+  Future<void> _checkGpsAndPermission() async {
+     LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+
+      permission = await Geolocator.requestPermission();
+      if (permission != LocationPermission.always) {
+      
+        return;
+      }
+    }
+    bool isGpsEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!isGpsEnabled) {
+
+      await Geolocator.openLocationSettings();
+      return;
+    }
+
+    
+
+
+    await _getLocation();
   }
 
   Future<void> _getLocation() async {
-  // Check if location services are enabled
-  bool? _serviceEnabled = await location.Location.instance.serviceEnabled();
-  if (!_serviceEnabled!) {
-    // If not enabled, request the user to enable location services
-    _serviceEnabled = await location.Location.instance.requestService();
-    if (!_serviceEnabled!) {
-      // Handle the case where the user did not enable location services
-      return;
-    }
-  }
 
-  // Check for location permissions
-  PermissionStatus permissionStatus = await location.Location.instance.requestPermission();
-  if (permissionStatus == PermissionStatus.granted) {
-    // Location permission granted, proceed with getting the current position
-    try {
-      // Get the current position
-      geolocator.Position position = await geolocator.Geolocator.getCurrentPosition(
-        desiredAccuracy: geolocator.LocationAccuracy.high,
+    LocationPermission permission=await Geolocator.checkPermission();
+    if(permission==LocationPermission.denied){
+      permission =await Geolocator.checkPermission();
+    }
+    
+     Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy:LocationAccuracy.high,
       );
 
-      // Rest of your location-related code...
+ 
       List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
       );
 
-      // Update position data or any other necessary logic
+
       _positionData = PositionData(
         latitude: position.latitude,
         longitude: position.longitude,
         cityName: placemarks.isNotEmpty ? placemarks[0].locality.toString() : '',
       );
 
-      // Fetch weather data using the updated position
       _initweatherdata = await ApiService.fetchWeatherData(
         position.latitude,
         position.longitude,
       );
 
-      // Update UI elements based on the new location and weather data
+
       setState(() {
         address = _positionData.cityName;
         _mapController.animateCamera(
@@ -84,15 +112,7 @@ class _LocationScreenState extends State<LocationScreen> {
         latitude = position.latitude;
         longitude = position.longitude;
       });
-    } catch (e) {
-      print('Error getting location: $e');
-      // Handle any errors that occurred while getting the location
-    }
-  } else {
-    // Handle the case where location permissions are not granted
-    // You may want to inform the user or request permissions again
-    print('Location permissions denied');
-  }
+    
 }
   Set<Marker> markerset = {};
   _addMarker(LatLng pos) {
@@ -132,7 +152,7 @@ class _LocationScreenState extends State<LocationScreen> {
                       _initweatherdata.isNotEmpty &&
                               _initweatherdata[1].icon.isNotEmpty
                           ? 'assets/${_initweatherdata[1].icon}@2x.png'
-                          : 'assets/03d@2x.png', // Provide a default image path if icon is empty
+                          : 'assets/03d@2x.png', 
                       fit: BoxFit.contain,
                     ),
                     Column(
@@ -162,7 +182,7 @@ class _LocationScreenState extends State<LocationScreen> {
             onPressed: () async {
               final formattedAddress =
                   await ApiService.fetchLocation(latitude, longitude);
-              // ignore: use_build_context_synchronously
+           
               showmodalfunction(context, formattedAddress, _initweatherdata);
             },
           ),
@@ -186,17 +206,17 @@ class _LocationScreenState extends State<LocationScreen> {
 
           markers: markerset,
           onMapCreated: (GoogleMapController controller) {
-            _mapController = controller; // Save the controller instance
+            _mapController = controller;
           },
           onLongPress: (LatLng pos) async {
             _addMarker(pos);
 
-            // Capture the context before entering the async operation
+          
 
             final formattedAddress =
                 await ApiService.fetchLocation(pos.latitude, pos.longitude);
 
-            // ignore: use_build_context_synchronously
+    
             showmodalfunction(context, formattedAddress, _initweatherdata);
           },
         ),
@@ -204,7 +224,7 @@ class _LocationScreenState extends State<LocationScreen> {
         
         
       ]),
-      // Other widgets if needed on top of the map
+
     );
   }
 }
