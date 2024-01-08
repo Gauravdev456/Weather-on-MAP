@@ -2,7 +2,7 @@
 
 https://github.com/Gauravdev456/Weather-on-MAP/assets/94520399/6302635a-169c-4c32-b18c-218a2eb539b5
 
-#First-Time Setup:
+# First-Time Setup:
 
 Open the app for the first time.
 The app requests permission to access location data.
