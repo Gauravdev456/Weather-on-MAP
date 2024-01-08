@@ -26,3 +26,5 @@ Next to the plus icon, there is a refresh icon. Clicking it updates the weather 
 ### Map Interaction:
 Clicking anywhere on the map triggers an action.
 After clicking, a detailed hourly forecast for the next 4 days appears on the screen, providing weather conditions for each hour.
+
+Note: Go to lib directory to view the Dart code
