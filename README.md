@@ -5,6 +5,7 @@ https://github.com/Gauravdev456/Weather-on-MAP/assets/94520399/6302635a-169c-4c3
 This application offers accurate weather forecasts and elevates location awareness. The app integrates two APIs – the Weather API and the Google Maps API.
 ### APIs Utilized
 Weather API: Delivers precise and real-time weather forecasts.
+
 Google Maps API: Facilitates the acquisition of formatted addresses based on user and selected coordinates.
 
 ## First-Time Setup:
